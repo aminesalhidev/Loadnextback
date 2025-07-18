@@ -32,7 +32,7 @@ app.post('/api/download', (req, res) => {
   const { link } = req.body;
 
   if (!link) {
-    return res.status(400).json({ success: false, message: '❗ Link mancante' });
+    return res.status(400).json({ success: false, message: '❗ Link mancanto' });
   }
 
   if (!fs.existsSync(ytDlpPath)) {
