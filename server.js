@@ -39,8 +39,9 @@ app.post('/api/download', (req, res) => {
   const nomeFile = `video_${Date.now()}.mp4`;
   const outputPath = path.join(__dirname, 'downloads', nomeFile);
 
-  const ytDlpPath = path.join(__dirname, 'yt-dip', 'yt-dlp.exe');
-  const command = `"${ytDlpPath}" -f best -o "${outputPath}" ${link}`;
+const ytDlpPath = path.join(__dirname, 'yt-dlp'); // Linux, no .exe
+const command = `"${ytDlpPath}" -f best -o "${outputPath}" ${link}`;
+
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
@@ -51,7 +52,7 @@ app.post('/api/download', (req, res) => {
     console.log('Download completato:', stdout);
 
     // URL pubblico del file
-    const fileUrl = `http://192.168.1.102:5003/downloads/${nomeFile}`;
+    const fileUrl = `https://loadnextback.onrender.com/downloads/${nomeFile}`;
     return res.json({ success: true, message: 'Download completato con successo', fileUrl });
   });
 });
