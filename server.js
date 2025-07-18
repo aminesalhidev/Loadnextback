@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Percorsi base
 const downloadsDir = path.join(__dirname, 'downloads');
-const ytDlpPath = path.join(__dirname, 'yt-dlp'); // Su Render non è .exe
+const ytDlpPath = path.join(__dirname, 'yt-dlp_linux');
 
 // Crea la cartella downloads se non esiste
 if (!fs.existsSync(downloadsDir)) {
@@ -58,7 +58,7 @@ app.post('/api/download', (req, res) => {
     }
 
     console.log('✅ Download completato');
-    const fileUrl = `https://loadnextback-2.onrender.com/downloads/${nomeFile}`;
+    const fileUrl = `https://loadnextback-3.onrender.com/downloads/${nomeFile}`;
     return res.json({
       success: true,
       message: '✅ Download completato con successo',
