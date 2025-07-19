@@ -30,8 +30,9 @@ app.use('/downloads', express.static(downloadsDir));
 
 // Funzione per validare link TikTok
 function isValidTikTokLink(link) {
-  return typeof link === 'string' && /^https?:\/\/(www\.)?tiktok\.com/.test(link);
+  return typeof link === 'string' && /^https?:\/\/(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)/.test(link);
 }
+
 
 // Rotta download
 app.post('/api/download', (req, res) => {
