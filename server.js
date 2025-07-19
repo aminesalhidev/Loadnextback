@@ -6,11 +6,11 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 5003;
+
+app.use(cors());
 app.use(express.json());
 
-
-
-// Percorsi base
+// Percorsi
 const downloadsDir = path.join(__dirname, 'downloads');
 const ytDlpPath = path.join(__dirname, 'yt-dlp_linux');
 
@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
   res.send('✅ Server attivo!');
 });
 
-// Static file hosting
+// Static hosting per i file scaricati
 app.use('/downloads', express.static(downloadsDir));
 
 // API download
@@ -32,28 +32,31 @@ app.post('/api/download', (req, res) => {
   const { link } = req.body;
 
   if (!link) {
-    return res.status(400).json({ success: false, message: '❗ Link mancanto' });
+    return res.status(400).json({
+      success: false,
+      message: '❗ Link mancante'
+    });
   }
 
   if (!fs.existsSync(ytDlpPath)) {
     return res.status(500).json({
       success: false,
-      message: '❌ yt-dlp non disponibile. Riprova tra qualche momento.'
+      message: '❌ yt-dlp non disponibile sul server'
     });
   }
 
   const nomeFile = `video_${Date.now()}.mp4`;
   const outputPath = path.join(downloadsDir, nomeFile);
+  const command = `${ytDlpPath} -f best -o "${outputPath}" "${link}"`;
 
-  const command = `"${ytDlpPath}" -f best -o "${outputPath}" ${link}`;
-  console.log('📥 Download in corso per:', link);
+  console.log('📥 Avvio download:', link);
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error('❌ Errore durante il download:', stderr || error.message);
+      console.error('❌ Errore:', stderr || error.message);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il download. Assicurati che il link sia valido e che yt-dlp sia installato.'
+        message: 'Errore nel download. Verifica il link.'
       });
     }
 
