@@ -1,15 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "description": "Backend per scaricare video da link Instagram tramite yt-dlp",
   "main": "server.js",
   "scripts": {
-    "postinstall": "curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o yt-dlp_linux && chmod +x yt-dlp_linux",
+    "postinstall": "chmod +x yt-dlp_linux",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Amine Salhi",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0"
