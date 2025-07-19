@@ -1,9 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o yt-dlp_linux && chmod +x yt-dlp_linux",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -11,11 +12,6 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "python3": "^0.0.1",
-    "yt-dlp-exec": "^1.0.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
+    "express": "^5.1.0"
   }
 }
