@@ -61,7 +61,7 @@ app.post('/api/download', (req, res) => {
     }
 
     console.log('✅ Download completato');
-    const fileUrl = `https://loadnextback-4.onrender.com/downloads/${nomeFile}`;
+const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
     return res.json({
       success: true,
       message: '✅ Download completato con successo',
