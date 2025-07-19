@@ -7,6 +7,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 5003;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -14,27 +15,32 @@ app.use(express.json());
 const downloadsDir = path.join(__dirname, 'downloads');
 const ytDlpPath = path.join(__dirname, 'yt-dlp_linux');
 
-// Crea la cartella downloads se non esiste
+// Crea cartella se non esiste
 if (!fs.existsSync(downloadsDir)) {
   fs.mkdirSync(downloadsDir);
 }
 
-// Rotta base
+// Rotta principale
 app.get('/', (req, res) => {
   res.send('✅ Server attivo!');
 });
 
-// Static hosting per i file scaricati
+// Hosting statico dei file scaricati
 app.use('/downloads', express.static(downloadsDir));
 
-// API download
+// Funzione per validare link TikTok
+function isValidTikTokLink(link) {
+  return typeof link === 'string' && /^https?:\/\/(www\.)?tiktok\.com/.test(link);
+}
+
+// Rotta download
 app.post('/api/download', (req, res) => {
   const { link } = req.body;
 
-  if (!link) {
+  if (!link || !isValidTikTokLink(link)) {
     return res.status(400).json({
       success: false,
-      message: '❗ Link mancante'
+      message: '❗ Inserisci un link valido di TikTok'
     });
   }
 
@@ -56,12 +62,12 @@ app.post('/api/download', (req, res) => {
       console.error('❌ Errore:', stderr || error.message);
       return res.status(500).json({
         success: false,
-        message: 'Errore nel download. Verifica il link.'
+        message: 'Errore nel download. Verifica il link TikTok.'
       });
     }
 
     console.log('✅ Download completato');
-const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
+    const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
     return res.json({
       success: true,
       message: '✅ Download completato con successo',
