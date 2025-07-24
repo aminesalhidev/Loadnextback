@@ -58,37 +58,24 @@ app.post('/api/download', (req, res) => {
 
   console.log('📥 Avvio download:', link);
 
-exec(command, (error, stdout, stderr) => {
-  if (error) {
-    console.error('❌ Errore:', stderr || error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Errore nel download. Verifica il link TikTok.'
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error('❌ Errore:', stderr || error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore nel download. Verifica il link TikTok.'
+      });
+    }
+
+    console.log('✅ Download completato');
+    const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
+    return res.json({
+      success: true,
+      message: '✅ Download completato con successo',
+      fileUrl
     });
-  }
-
-  console.log('✅ Download completato');
-  const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
-
-  // Invia la risposta al client
-  res.json({
-    success: true,
-    message: '✅ Download completato con successo',
-    fileUrl
   });
-
-  // Dopo 20 secondi elimina il file dal server
-  setTimeout(() => {
-    fs.unlink(outputPath, (err) => {
-      if (err) {
-        console.error('❌ Errore eliminando il file:', err);
-      } else {
-        console.log(`🗑️ File eliminato: ${nomeFile}`);
-      }
-    });
-  }, 20 * 1000);
 });
-
 
 // Avvio server
 app.listen(PORT, () => {
