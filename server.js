@@ -32,8 +32,6 @@ app.use('/downloads', express.static(downloadsDir));
 function isValidTikTokLink(link) {
   return typeof link === 'string' && /^https?:\/\/(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)/.test(link);
 }
-
-
 // Rotta download
 app.post('/api/download', (req, res) => {
   const { link } = req.body;
@@ -69,6 +67,18 @@ app.post('/api/download', (req, res) => {
 
     console.log('✅ Download completato');
     const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
+
+    // ⏱️ Programma eliminazione dopo 60 secondi
+    setTimeout(() => {
+      fs.unlink(outputPath, (err) => {
+        if (err) {
+          console.error(`❌ Errore durante eliminazione: ${err.message}`);
+        } else {
+          console.log(`🧹 File ${nomeFile} eliminato`);
+        }
+      });
+    }, 60000); // 60 secondi
+
     return res.json({
       success: true,
       message: '✅ Download completato con successo',
