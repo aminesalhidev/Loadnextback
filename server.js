@@ -1,57 +1,83 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 5003;
+const PORT = process.env.PORT || 5003;
 
+// Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Percorso all'eseguibile yt-dlp
+// Percorsi
+const downloadsDir = path.join(__dirname, 'downloads');
 const ytDlpPath = path.join(__dirname, 'yt-dlp_linux');
 
-// Percorso file cookies.txt (se esiste)
-const cookiesPath = path.join(__dirname, 'cookies.txt');
+// Crea cartella se non esiste
+if (!fs.existsSync(downloadsDir)) {
+  fs.mkdirSync(downloadsDir);
+}
 
-app.post('/scarica', (req, res) => {
+// Rotta principale
+app.get('/', (req, res) => {
+  res.send('✅ Server attivo!');
+});
+
+// Hosting statico dei file scaricati
+app.use('/downloads', express.static(downloadsDir));
+
+// Funzione per validare link TikTok
+function isValidTikTokLink(link) {
+  return typeof link === 'string' && /^https?:\/\/(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)/.test(link);
+}
+
+
+// Rotta download
+app.post('/api/download', (req, res) => {
   const { link } = req.body;
 
-  if (!link) {
-    return res.status(400).json({ errore: 'Link mancante' });
+  if (!link || !isValidTikTokLink(link)) {
+    return res.status(400).json({
+      success: false,
+      message: '❗ Inserisci un link valido di TikTok'
+    });
   }
 
-  console.log(`Il server ha ricevuto il link ${link}`);
-
-  const outputPath = path.join(__dirname, 'video_scaricato.%(ext)s');
-  let command = `${ytDlpPath} -f best -o "${outputPath}"`;
-
-  // Aggiunge i cookies se disponibili
-  if (fs.existsSync(cookiesPath)) {
-    command += ` --cookies "${cookiesPath}"`;
-    console.log('✔️ Cookie rilevati, usati per il download');
-  } else {
-    console.log('⚠️ Nessun cookie rilevato, download pubblico');
+  if (!fs.existsSync(ytDlpPath)) {
+    return res.status(500).json({
+      success: false,
+      message: '❌ yt-dlp non disponibile sul server'
+    });
   }
 
-  command += ` "${link}"`;
+  const nomeFile = `video_${Date.now()}.mp4`;
+  const outputPath = path.join(downloadsDir, nomeFile);
+  const command = `${ytDlpPath} -f best -o "${outputPath}" "${link}"`;
+
+  console.log('📥 Avvio download:', link);
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Errore: ${error.message}`);
-      return res.status(500).json({ errore: 'Errore durante il download' });
+      console.error('❌ Errore:', stderr || error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore nel download. Verifica il link TikTok.'
+      });
     }
 
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-
-    res.status(200).json({ messaggio: 'Download completato con successo' });
+    console.log('✅ Download completato');
+    const fileUrl = `https://loadnextback-6.onrender.com/downloads/${nomeFile}`;
+    return res.json({
+      success: true,
+      message: '✅ Download completato con successo',
+      fileUrl
+    });
   });
 });
 
+// Avvio server
 app.listen(PORT, () => {
-  console.log(`✅ Server attivo su http://localhost:${PORT}`);
+  console.log(`🚀 Server in ascolto su http://localhost:${PORT}`);
 });
